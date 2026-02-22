@@ -1,0 +1,24 @@
+### Testing the academic operations API
+
+### Testing the Auth Endpoints
+
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Iradukunda Happy",
+    "email": "iradukunda1happy1@gmail.com",
+    "password": "Happy@123"
+}
+
+### testing the API of registering new user(teacher)
+
+POST http://localhost:5000/api/admin/register-user
+Content-Type: application/json
+
+{
+    "name": "Developer",
+    "email": "developer1@gmail.com",
+    "password": "Developer@123",
+    "role": "teacher"
+}
