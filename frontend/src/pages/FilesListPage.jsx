@@ -30,6 +30,8 @@ const FilesListPage = () => {
     const [uploading, setUploading] = useState(false);
     const [uploadMsg, setUploadMsg] = useState('');
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [allClasses, setAllClasses] = useState([]);
+    const [uploadClassId, setUploadClassId] = useState('');
     const navigate = useNavigate();
 
     const user = JSON.parse(localStorage.getItem('user'));
@@ -47,7 +49,17 @@ const FilesListPage = () => {
         }
     }, []);
 
-    useEffect(() => { fetchFiles(); }, [fetchFiles]);
+    const fetchClasses = useCallback(async () => {
+        try {
+            const { data } = await api.get('/classes');
+            setAllClasses(data);
+        } catch (err) { console.error(err); }
+    }, []);
+
+    useEffect(() => {
+        fetchFiles();
+        fetchClasses();
+    }, [fetchFiles, fetchClasses]);
 
     const handleApproval = async (fileId, approved) => {
         try {
@@ -92,11 +104,14 @@ const FilesListPage = () => {
         try {
             const formData = new FormData();
             formData.append('file', uploadFile);
+            if (uploadClassId) formData.append('classId', uploadClassId);
+
             await api.post('/files/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             setUploadMsg('File integrated successfully.');
             setUploadFile(null);
+            setUploadClassId('');
             setShowUpload(false);
             fetchFiles();
         } catch (err) {
@@ -118,7 +133,8 @@ const FilesListPage = () => {
     };
 
     const filtered = files.filter(f =>
-        f.fileName.toLowerCase().includes(search.toLowerCase())
+        f.fileName.toLowerCase().includes(search.toLowerCase()) ||
+        f.class?.name.toLowerCase().includes(search.toLowerCase())
     );
 
     const getFileIcon = (file) => {
@@ -188,6 +204,21 @@ const FilesListPage = () => {
                                         className="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer"
                                     />
                                 </div>
+                                <div className="relative">
+                                    <select
+                                        value={uploadClassId}
+                                        onChange={(e) => setUploadClassId(e.target.value)}
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all appearance-none"
+                                    >
+                                        <option value="">Assign to Class (Optional)</option>
+                                        {allClasses.map(c => (
+                                            <option key={c._id} value={c._id}>{c.name}</option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                        <Users size={16} />
+                                    </div>
+                                </div>
                                 <div className="flex items-center justify-between gap-4">
                                     <button
                                         type="button"
@@ -238,6 +269,7 @@ const FilesListPage = () => {
                             <tr className="border-b border-slate-100 bg-slate-50/50">
                                 <th className="px-8 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Document</th>
                                 <th className="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Type</th>
+                                <th className="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Class</th>
                                 <th className="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Agent</th>
                                 <th className="px-6 py-5 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
                                 <th className="px-6 py-5 text-right text-xs font-bold text-slate-500 uppercase tracking-widest">Operations</th>
@@ -246,7 +278,7 @@ const FilesListPage = () => {
                         <tbody className="divide-y divide-slate-100">
                             {filtered.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-8 py-20 text-center text-slate-400">
+                                    <td colSpan="6" className="px-8 py-20 text-center text-slate-400">
                                         <div className="flex flex-col items-center">
                                             <AlertCircle size={32} className="mb-3 opacity-20" />
                                             <p className="font-semibold text-sm">No assets found matching current filters.</p>
@@ -279,6 +311,13 @@ const FilesListPage = () => {
                                                 }`}>
                                                 {file.source === 'internal' ? 'Internal DB' : 'External FS'}
                                             </span>
+                                        </td>
+                                        <td className="px-6 py-5 whitespace-nowrap">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`px-3 py-1 text-[10px] font-bold rounded-lg uppercase tracking-wider ${file.class ? 'bg-indigo-50 text-indigo-600 border border-indigo-100' : 'bg-slate-100 text-slate-500'}`}>
+                                                    {file.class?.name || 'Independent'}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-5 whitespace-nowrap text-sm font-semibold text-slate-700">
                                             {file.uploadedBy?.name || 'System Protocol'}

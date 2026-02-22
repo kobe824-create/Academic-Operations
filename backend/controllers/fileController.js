@@ -28,6 +28,7 @@ export const uploadFile = async (req, res) => {
             fileType: req.file.mimetype,
             uploadedBy: req.user.id,
             school: user.school,
+            class: req.body.classId || undefined,
         });
 
         if (user.role === 'admin') {
@@ -56,7 +57,9 @@ export const getSchoolFiles = async (req, res) => {
         let files;
 
         if (user.role === 'admin') {
-            files = await File.find({ school: user.school }).populate('uploadedBy', 'name email');
+            files = await File.find({ school: user.school })
+                .populate('uploadedBy', 'name email')
+                .populate('class', 'name');
         } else {
             files = await File.find({
                 school: user.school,
@@ -64,7 +67,9 @@ export const getSchoolFiles = async (req, res) => {
                     { approved: true },
                     { uploadedBy: req.user.id }
                 ]
-            }).populate('uploadedBy', 'name email');
+            })
+                .populate('uploadedBy', 'name email')
+                .populate('class', 'name');
         }
 
         res.status(200).json(files);
@@ -109,6 +114,7 @@ export const createInternalFile = async (req, res) => {
             content,
             uploadedBy: user._id,
             school: user.school,
+            class: classId || undefined,
             approved: user.role === 'admin',
             approvedBy: user.role === 'admin' ? user._id : undefined,
         });

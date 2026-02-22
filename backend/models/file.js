@@ -5,15 +5,15 @@ const fileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    
+
     filePath: {
         type: String,
-        required: function() { return this.source === 'upload'; } // Required only for uploads
+        required: function () { return this.source === 'upload'; } // Required only for uploads
     },
 
     fileType: {
         type: String,
-        required: function() { return this.source === 'upload'; }
+        required: function () { return this.source === 'upload'; }
     },
 
     source: {
@@ -26,7 +26,7 @@ const fileSchema = new mongoose.Schema({
     // For internally generated files, like marks sheets
     content: {
         type: mongoose.Schema.Types.Mixed,
-        required: function() { return this.source === 'internal'; }
+        required: function () { return this.source === 'internal'; }
     },
 
     uploadedBy: {
@@ -39,6 +39,12 @@ const fileSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'School',
         required: true
+    },
+
+    class: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Class',
+        required: false
     },
 
     approved: {
