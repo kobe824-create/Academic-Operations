@@ -92,11 +92,13 @@ const ClassDetailsPage = () => {
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
                                     {classData.students.map((s, i) => (
-                                        <tr key={s._id} className="hover:bg-gray-50">
-                                            <td className="px-5 py-3 text-sm text-slate-400">{i + 1}</td>
-                                            <td className="px-5 py-3 text-sm text-slate-500 font-mono">{s.studentId}</td>
-                                            <td className="px-5 py-3 text-sm text-slate-800">{s.name}</td>
-                                        </tr>
+                                        <StudentRow
+                                            key={s._id}
+                                            student={s}
+                                            index={i}
+                                            classId={classId}
+                                            onUpdate={fetchClass}
+                                        />
                                     ))}
                                 </tbody>
                             </table>
@@ -105,6 +107,86 @@ const ClassDetailsPage = () => {
                 </div>
             </div>
         </div>
+    );
+};
+
+const StudentRow = ({ student, index, classId, onUpdate }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [editName, setEditName] = useState(student.name);
+    const [editId, setEditId] = useState(student.studentId);
+    const [loading, setLoading] = useState(false);
+
+    const handleUpdate = async () => {
+        setLoading(true);
+        try {
+            await api.patch(`/classes/${classId}/students/${student._id}`, {
+                name: editName,
+                studentId: editId
+            });
+            setIsEditing(false);
+            onUpdate();
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to update student.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (isEditing) {
+        return (
+            <tr className="bg-blue-50/30">
+                <td className="px-5 py-3 text-sm text-slate-400">{index + 1}</td>
+                <td className="px-5 py-3 text-sm">
+                    <input
+                        type="text"
+                        value={editId}
+                        onChange={e => setEditId(e.target.value)}
+                        className="w-full px-2 py-1 text-sm border border-blue-200 rounded outline-none focus:border-blue-400"
+                    />
+                </td>
+                <td className="px-5 py-3 text-sm">
+                    <input
+                        type="text"
+                        value={editName}
+                        onChange={e => setEditName(e.target.value)}
+                        className="w-full px-2 py-1 text-sm border border-blue-200 rounded outline-none focus:border-blue-400"
+                    />
+                </td>
+                <td className="px-5 py-3 text-right">
+                    <div className="flex justify-end gap-2">
+                        <button
+                            onClick={handleUpdate}
+                            disabled={loading}
+                            className="text-emerald-600 hover:text-emerald-700 font-semibold text-xs"
+                        >
+                            Save
+                        </button>
+                        <button
+                            onClick={() => { setIsEditing(false); setEditName(student.name); setEditId(student.studentId); }}
+                            className="text-slate-400 hover:text-slate-600 font-semibold text-xs"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        );
+    }
+
+    return (
+        <tr className="hover:bg-gray-50">
+            <td className="px-5 py-3 text-sm text-slate-400">{index + 1}</td>
+            <td className="px-5 py-3 text-sm text-slate-500 font-mono">{student.studentId}</td>
+            <td className="px-5 py-3 text-sm text-slate-800">{student.name}</td>
+            <td className="px-5 py-3 text-right">
+                <button
+                    onClick={() => setIsEditing(true)}
+                    className="text-blue-600 hover:text-blue-800 font-semibold text-xs"
+                >
+                    Edit
+                </button>
+            </td>
+        </tr>
     );
 };
 

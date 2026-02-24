@@ -1,5 +1,5 @@
 import express from 'express';
-import { createClass, getClasses, getClassById, addStudent, getStudentsInClass } from '../controllers/classController.js';
+import { createClass, getClasses, getClassById, addStudent, getStudentsInClass, updateStudent } from '../controllers/classController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -16,5 +16,8 @@ router.route('/:classId')
 router.route('/:classId/students')
     .post(addStudent)
     .get(getStudentsInClass);
+
+router.route('/:classId/students/:studentId')
+    .patch(updateStudent);
 
 export default router;

@@ -79,11 +79,23 @@ const FilesListPage = () => {
         }
     };
 
-    const handleDownload = async (fileId, fileName) => {
+    const handleDownload = async (fileId, defaultName) => {
         try {
             const response = await api.get(`/files/download/${fileId}`, {
                 responseType: 'blob'
             });
+
+            // Extract filename from Content-Disposition if present
+            const disposition = response.headers['content-disposition'];
+            let fileName = defaultName;
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) {
+                    fileName = matches[1].replace(/[ '"]/g, '');
+                }
+            }
+
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
@@ -91,6 +103,7 @@ const FilesListPage = () => {
             document.body.appendChild(link);
             link.click();
             link.remove();
+            window.URL.revokeObjectURL(url);
         } catch (err) {
             console.error('Download failed', err);
         }

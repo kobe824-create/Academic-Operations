@@ -2,6 +2,7 @@ import File from '../models/file.js';
 import Users from '../models/users.js';
 import Student from '../models/Student.js';
 import { logActivity } from './activityLogController.js';
+import ExcelJS from 'exceljs';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -206,22 +207,33 @@ export const editFile = async (req, res) => {
         return res.status(404).json({ message: 'File not found.' });
     }
 
-    if (file.uploadedBy.toString() !== user._id.toString()) {
-        return res.status(403).json({ message: 'You can only edit your own files.' });
+    // Admins can edit any file in their school. Teachers can only edit their own.
+    if (user.role !== 'admin' && file.uploadedBy.toString() !== user._id.toString()) {
+        return res.status(403).json({ message: 'Not authorized to edit this file.' });
     }
 
-    // When a teacher "edits" a file, it is reset to unapproved and must be re-approved by an admin.
-    // For internal files, this is where you'd update the 'content' field.
+    if (file.school.toString() !== user.school.toString()) {
+        return res.status(403).json({ message: 'Not authorized to edit this file.' });
+    }
+
+    // For internal files, update content
     if (file.source === 'internal' && req.body?.content) {
         file.content = req.body.content;
     }
 
-    file.approved = false;
-    file.approvedBy = undefined;
-    await file.save();
-    logActivity(req.user.id, 'Resubmitted file', `"${file.fileName}"`);
+    // Reset approval if edited by teacher, keep approved if edited by admin
+    if (user.role !== 'admin') {
+        file.approved = false;
+        file.approvedBy = undefined;
+    } else {
+        file.approved = true;
+        file.approvedBy = user._id;
+    }
 
-    res.status(200).json({ message: 'File has been submitted for re-approval.', file });
+    await file.save();
+    logActivity(req.user.id, 'Edited file', `"${file.fileName}"`);
+
+    res.status(200).json({ message: 'File updated successfully.', file });
 };
 
 /**
@@ -279,8 +291,54 @@ export const downloadFile = async (req, res) => {
         // For internal files (marks, etc.), we might need to generate a text/csv file on the fly
         // but for now, let's focus on uploaded files as requested for "downloading those uploaded files"
         if (file.source === 'internal') {
-            // For now, simple JSON download for internal files
-            res.setHeader('Content-disposition', `attachment; filename=${file.fileName}.json`);
+            if (file.fileType === 'marks' && file.content?.students) {
+                // Generate Professional XLSX for marks
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Marks Sheet');
+
+                // Define Columns
+                worksheet.columns = [
+                    { header: 'Student Name', key: 'name', width: 30 },
+                    { header: 'Student ID', key: 'studentId', width: 20 },
+                    { header: 'Marks Obtained', key: 'marks', width: 20 },
+                    { header: 'Maximum Scale', key: 'max', width: 20 },
+                ];
+
+                // Style Header
+                worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                worksheet.getRow(1).fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF1E3A8A' } // Deep Navy
+                };
+
+                // Add Data
+                file.content.students.forEach(s => {
+                    worksheet.addRow({
+                        name: s.name,
+                        studentId: s.studentId,
+                        marks: s.marks || 0,
+                        max: file.content.targetMarks || 100
+                    });
+                });
+
+                // Set headers for download
+                res.setHeader(
+                    'Content-Type',
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                );
+                res.setHeader(
+                    'Content-Disposition',
+                    `attachment; filename="${file.fileName}.xlsx"`
+                );
+
+                await workbook.xlsx.write(res);
+                logActivity(req.user.id, 'Exported marks as XLSX', `"${file.fileName}"`);
+                return res.end();
+            }
+
+            // Fallback for other internal files
+            res.setHeader('Content-disposition', `attachment; filename="${file.fileName}.json"`);
             res.setHeader('Content-type', 'application/json');
             return res.send(JSON.stringify(file.content, null, 2));
         }

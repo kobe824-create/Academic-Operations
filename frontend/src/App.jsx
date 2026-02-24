@@ -53,7 +53,7 @@ function App() {
               <Route path="/teacher/classes" element={<ClassManagementPage />} />
               <Route path="/teacher/classes/:classId" element={<ClassDetailsPage />} />
               <Route path="/teacher/files" element={<FilesListPage />} />
-              <Route path="/teacher/create-file" element={<CreateInternalFilePage />} />
+              <Route path="/teacher/internal/create" element={<CreateInternalFilePage />} />
             </Route>
           </Route>
 

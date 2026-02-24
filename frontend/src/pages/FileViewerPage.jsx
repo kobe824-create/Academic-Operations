@@ -56,7 +56,14 @@ const FileViewerPage = () => {
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', file.fileName);
+
+            // If the response is CSV (internal marks), ensure extension is .csv
+            let downloadName = file.fileName;
+            if (file.source === 'internal' && file.fileType === 'marks' && !downloadName.toLowerCase().endsWith('.csv')) {
+                downloadName += '.csv';
+            }
+
+            link.setAttribute('download', downloadName);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -198,6 +205,14 @@ const FileViewerPage = () => {
                     <button onClick={handleDownload} className="flex items-center gap-3 px-6 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
                         <Download size={18} /> Save Copy
                     </button>
+                    {file.source === 'internal' && file.fileType === 'marks' && (
+                        <Link
+                            to={`${basePath}/internal/create?edit=${file._id}`}
+                            className="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl"
+                        >
+                            Edit Marks
+                        </Link>
+                    )}
                     {file.source !== 'internal' && (
                         <button onClick={() => window.open(viewUrl, '_blank')} className="flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20">
                             <Eye size={18} /> Full Window

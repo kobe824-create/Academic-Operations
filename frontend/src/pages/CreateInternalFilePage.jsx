@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import {
     FileText,
@@ -11,7 +11,8 @@ import {
     CheckCircle2,
     AlertCircle,
     Clock,
-    Layout
+    Layout,
+    ArrowLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -26,25 +27,74 @@ const CreateInternalFilePage = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editFileId, setEditFileId] = useState(null);
+
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         api.get('/classes').then(res => setClasses(res.data)).catch(() => { });
-    }, []);
+
+        // Check for edit mode
+        const queryParams = new URLSearchParams(location.search);
+        const editId = queryParams.get('edit');
+        if (editId) {
+            fetchExistingFile(editId);
+        }
+    }, [location.search]);
+
+    const fetchExistingFile = async (id) => {
+        setLoading(true);
+        try {
+            const { data } = await api.get(`/files/${id}`);
+            if (data.source === 'internal' && data.fileType === 'marks') {
+                setIsEditMode(true);
+                setEditFileId(id);
+                setFileName(data.fileName);
+                setClassId(data.class?._id || data.class || '');
+                setTargetMarks(data.content?.targetMarks || 100);
+
+                // Initialize marks from internal content
+                const marksMap = {};
+                data.content?.students?.forEach(s => {
+                    marksMap[s.studentId] = s.marks;
+                });
+                setStudentMarks(marksMap);
+
+                // Fetch students to ensure we have the full roster in case it changed
+                // but the marksMap will preserve existing grades
+            }
+        } catch (err) {
+            setError('Failed to fetch existing document for modification.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchStudents = async () => {
         if (!classId) return;
         setLoading(true);
         try {
-            // Assuming there's an endpoint to get class details including students
             const { data } = await api.get(`/classes/${classId}`);
             setStudents(data.students || []);
-            // Initialize marks
-            const initialMarks = {};
-            data.students?.forEach(s => {
-                initialMarks[s._id] = '';
-            });
-            setStudentMarks(initialMarks);
+
+            // In edit mode, we merge existing marks with the roster
+            if (isEditMode) {
+                const mergedMarks = { ...studentMarks };
+                data.students?.forEach(s => {
+                    if (mergedMarks[s._id] === undefined) {
+                        mergedMarks[s._id] = '';
+                    }
+                });
+                setStudentMarks(mergedMarks);
+            } else {
+                const initialMarks = {};
+                data.students?.forEach(s => {
+                    initialMarks[s._id] = '';
+                });
+                setStudentMarks(initialMarks);
+            }
             setStep(2);
         } catch (err) {
             setError('Failed to fetch class roster.');
@@ -81,9 +131,18 @@ const CreateInternalFilePage = () => {
                     }))
                 }
             };
-            await api.post('/files/internal', payload);
-            setSuccess(`Marks sheet "${fileName}" has been successfully published.`);
-            setTimeout(() => navigate('/teacher/files'), 2000);
+
+            if (isEditMode) {
+                await api.patch(`/files/${editFileId}`, payload);
+                setSuccess(`Marks sheet "${fileName}" has been successfully updated.`);
+            } else {
+                await api.post('/files/internal', payload);
+                setSuccess(`Marks sheet "${fileName}" has been successfully published.`);
+            }
+
+            const user = JSON.parse(localStorage.getItem('user'));
+            const basePath = user?.role === 'admin' ? '/admin' : '/teacher';
+            setTimeout(() => navigate(`${basePath}/files`), 2000);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to save marks sheet.');
         } finally {
@@ -106,7 +165,7 @@ const CreateInternalFilePage = () => {
                     <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
                         <FileText size={20} />
                     </div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Marks Sheet Wizard</h1>
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{isEditMode ? 'Modify Academic Record' : 'Marks Sheet Wizard'}</h1>
                 </div>
                 <p className="text-slate-500 font-medium">Step {step}: {step === 1 ? 'Configure Assessment' : 'Individual Grade Entry'}</p>
             </div>
