@@ -207,7 +207,7 @@ const FileViewerPage = () => {
                     </button>
                     {file.source === 'internal' && file.fileType === 'marks' && (
                         <Link
-                            to={`${basePath}/internal/create?edit=${file._id}`}
+                            to={`${basePath}/create-file?edit=${file._id}`}
                             className="flex items-center gap-3 px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl"
                         >
                             Edit Marks
