@@ -10,6 +10,7 @@ import {
     Plus,
     Upload,
     UploadCloud,
+    Users,
     MoreVertical,
     AlertCircle,
     CheckCircle2,
@@ -170,12 +171,12 @@ const FilesListPage = () => {
     return (
         <div className="max-w-[1200px] mx-auto">
             {/* Page Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 mb-10">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">File Repository</h1>
                     <p className="text-slate-500 font-medium mt-1">Manage, audit, and distribute academic documentation.</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                     <button
                         onClick={() => setShowUpload(!showUpload)}
                         className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shadow-sm"

@@ -54,7 +54,7 @@ const LoginPage = () => {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-3xl shadow-xl shadow-blue-600/30 mb-6 text-white rotate-3 hover:rotate-0 transition-transform duration-500">
                         <ShieldCheck size={32} />
                     </div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Academic <span className="text-blue-600">Ops</span></h1>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">School Marks <span className="text-blue-600">Sheet</span></h1>
                     <p className="text-slate-500 font-medium">Secured Institutional Management Suite</p>
                 </div>
 
@@ -142,7 +142,7 @@ const LoginPage = () => {
                 </div>
 
                 <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-10">
-                    &copy; 2026 Academic Operations Framework
+                    &copy; 2026 School Marks Sheet
                 </p>
             </motion.div>
         </div>

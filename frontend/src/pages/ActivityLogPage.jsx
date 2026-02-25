@@ -38,14 +38,14 @@ const ActivityLogPage = () => {
                 <input
                     type="text" placeholder="Search by user, action, or details..."
                     value={search} onChange={(e) => setSearch(e.target.value)}
-                    className="w-full max-w-sm px-4 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
+                    className="w-full sm:max-w-sm px-4 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
                 />
             </div>
 
             {loading ? (
                 <div className="text-center py-16 text-slate-400">Loading...</div>
             ) : (
-                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden overflow-x-auto">
                     {filtered.length === 0 ? (
                         <div className="text-center py-12 text-slate-400">
                             <p className="font-medium">{search ? 'No logs match your search.' : 'No activity recorded yet.'}</p>

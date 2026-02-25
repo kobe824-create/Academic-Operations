@@ -8,11 +8,12 @@ import {
     FilePlus,
     ClipboardList,
     ChevronRight,
-    LogOut
+    LogOut,
+    X
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
     const user = JSON.parse(localStorage.getItem('user'));
     const isAdmin = user?.role === 'admin';
     const basePath = isAdmin ? '/admin' : '/teacher';
@@ -50,23 +51,32 @@ const Sidebar = () => {
         }] : []),
     ];
 
-    return (
-        <aside className="w-72 bg-slate-900 border-r border-slate-800 flex flex-col min-h-screen shadow-2xl z-20">
+    const sidebarContent = (
+        <>
             {/* Brand Header */}
             <div className="px-8 py-8 flex flex-col">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/40">
-                        <motion.div
-                            animate={{ rotate: [0, 10, 0] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                        >
-                            <BookOpen className="text-white" size={24} strokeWidth={2.5} />
-                        </motion.div>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-900/40">
+                            <motion.div
+                                animate={{ rotate: [0, 10, 0] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                            >
+                                <BookOpen className="text-white" size={24} strokeWidth={2.5} />
+                            </motion.div>
+                        </div>
+                        <div>
+                            <h1 className="text-lg font-bold text-white tracking-tight">School<span className="text-blue-500">Marks</span></h1>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">{user?.role} Portal</p>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="text-lg font-bold text-white tracking-tight">Academic<span className="text-blue-500">Ops</span></h1>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">{user?.role} Portal</p>
-                    </div>
+                    {/* Close button - visible only on mobile */}
+                    <button
+                        onClick={onClose}
+                        className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
+                    >
+                        <X size={20} />
+                    </button>
                 </div>
             </div>
 
@@ -77,6 +87,7 @@ const Sidebar = () => {
                     <NavLink
                         key={item.path}
                         to={item.path}
+                        onClick={onClose}
                         className={({ isActive }) =>
                             `group relative flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${isActive
                                 ? 'bg-blue-600/10 text-blue-400'
@@ -122,7 +133,43 @@ const Sidebar = () => {
                     </div>
                 </div>
             </div>
-        </aside>
+        </>
+    );
+
+    return (
+        <>
+            {/* Desktop Sidebar - always visible on lg+ */}
+            <aside className="hidden lg:flex w-72 bg-slate-900 border-r border-slate-800 flex-col min-h-screen shadow-2xl z-20">
+                {sidebarContent}
+            </aside>
+
+            {/* Mobile Sidebar - overlay */}
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={onClose}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+                        />
+                        {/* Sidebar panel */}
+                        <motion.aside
+                            initial={{ x: '-100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '-100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            className="fixed top-0 left-0 bottom-0 w-72 bg-slate-900 border-r border-slate-800 flex flex-col shadow-2xl z-50 lg:hidden"
+                        >
+                            {sidebarContent}
+                        </motion.aside>
+                    </>
+                )}
+            </AnimatePresence>
+        </>
     );
 };
 

@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import { LogOut, Bell, Search, User } from 'lucide-react';
+import { LogOut, Bell, Search, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const DashboardLayout = () => {
     const user = JSON.parse(localStorage.getItem('user'));
     const navigate = useNavigate();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -16,12 +17,20 @@ const DashboardLayout = () => {
 
     return (
         <div className="flex h-screen bg-[#F8FAFC]">
-            <Sidebar />
+            <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                 {/* Modern Top Header */}
-                <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
-                    <div className="flex items-center gap-6 flex-1">
+                <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 md:px-8 flex items-center justify-between sticky top-0 z-10">
+                    <div className="flex items-center gap-4 md:gap-6 flex-1">
+                        {/* Hamburger menu - mobile only */}
+                        <button
+                            onClick={() => setSidebarOpen(true)}
+                            className="lg:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors"
+                        >
+                            <Menu size={22} />
+                        </button>
+
                         <div className="relative group max-w-md w-full hidden md:block">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
                             <input
@@ -32,15 +41,15 @@ const DashboardLayout = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 md:gap-4">
                         <button className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-colors">
                             <Bell size={20} />
                             <span className="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full border-2 border-white"></span>
                         </button>
 
-                        <div className="h-8 w-[1px] bg-slate-200 mx-2"></div>
+                        <div className="h-8 w-[1px] bg-slate-200 mx-1 md:mx-2 hidden sm:block"></div>
 
-                        <div className="flex items-center gap-3 pl-2 group cursor-pointer">
+                        <div className="flex items-center gap-2 md:gap-3 pl-1 md:pl-2 group cursor-pointer">
                             <div className="text-right hidden sm:block">
                                 <p className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{user?.name}</p>
                                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{user?.role}</p>
@@ -59,7 +68,7 @@ const DashboardLayout = () => {
                 </header>
 
                 {/* Main Content Area */}
-                <main className="flex-1 overflow-y-auto p-8 relative scroll-smooth custom-scrollbar">
+                <main className="flex-1 overflow-y-auto p-4 md:p-8 relative scroll-smooth custom-scrollbar">
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}

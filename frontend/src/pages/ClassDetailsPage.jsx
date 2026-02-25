@@ -76,7 +76,7 @@ const ClassDetailsPage = () => {
 
                 {/* Student list */}
                 <div className="lg:col-span-2">
-                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden overflow-x-auto">
                         {!classData.students?.length ? (
                             <div className="text-center py-12 text-slate-400">
                                 <p className="font-medium">No students yet.</p>

@@ -5,8 +5,8 @@ const HomePage = () => {
     return (
         <div className="min-h-screen bg-white flex flex-col">
             {/* Nav */}
-            <header className="flex items-center justify-between px-8 lg:px-16 h-16 border-b border-gray-100">
-                <h1 className="text-lg font-semibold text-slate-800">Academic Ops</h1>
+            <header className="flex items-center justify-between px-4 sm:px-8 lg:px-16 h-16 border-b border-gray-100">
+                <h1 className="text-lg font-semibold text-slate-800">School Marks Sheet</h1>
                 <div className="flex items-center gap-4">
                     <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Log in</Link>
                     <Link to="/register-school" className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
@@ -17,13 +17,13 @@ const HomePage = () => {
 
             {/* Hero */}
             <main className="flex-1 flex flex-col items-center justify-center px-8 text-center">
-                <h2 className="text-4xl lg:text-5xl font-bold text-slate-800 max-w-2xl leading-tight">
-                    Streamline your school's academic operations
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 max-w-2xl leading-tight">
+                    Streamline your school's marks sheet management
                 </h2>
                 <p className="text-lg text-slate-500 mt-4 max-w-xl">
                     Manage classes, files, students, and approvals — all in one place. Built for administrators and teachers.
                 </p>
-                <div className="flex items-center gap-3 mt-8">
+                <div className="flex flex-col sm:flex-row items-center gap-3 mt-8">
                     <Link to="/register-school" className="px-6 py-3 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
                         Register Your School
                     </Link>
@@ -48,7 +48,7 @@ const HomePage = () => {
             </main>
 
             <footer className="text-center py-6 text-xs text-slate-400">
-                © {new Date().getFullYear()} Academic Ops
+                © {new Date().getFullYear()} School Marks Sheet
             </footer>
         </div>
     );

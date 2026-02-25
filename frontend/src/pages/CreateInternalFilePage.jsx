@@ -294,7 +294,7 @@ const CreateInternalFilePage = () => {
                                 </button>
                             </div>
 
-                            <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
+                            <div className="max-h-[500px] overflow-y-auto overflow-x-auto custom-scrollbar">
                                 <table className="w-full text-left">
                                     <thead className="sticky top-0 bg-white z-10">
                                         <tr className="border-b border-slate-100 bg-white">
@@ -356,7 +356,7 @@ const CreateInternalFilePage = () => {
                             )}
                         </AnimatePresence>
 
-                        <div className="flex justify-between items-center gap-4">
+                        <div className="flex flex-col-reverse sm:flex-row justify-between items-center gap-4">
                             <button
                                 onClick={() => setStep(1)}
                                 className="px-6 py-4 text-slate-500 hover:text-slate-900 font-black text-[10px] uppercase tracking-widest transition-colors flex items-center gap-2"

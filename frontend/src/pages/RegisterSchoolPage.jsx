@@ -63,7 +63,7 @@ const RegisterSchoolPage = () => {
                         <ShieldCheck size={28} />
                     </div>
                     <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Establish <span className="text-blue-600">Institution</span></h1>
-                    <p className="text-slate-500 text-sm font-medium">Join the Secure Academic Operations Network</p>
+                    <p className="text-slate-500 text-sm font-medium">Join the School Marks Sheet Network</p>
                 </div>
 
                 <div className="bg-white rounded-[2.5rem] border border-slate-200 p-10 shadow-2xl shadow-slate-200/50 relative">

@@ -19,7 +19,7 @@ const UserList = () => {
     if (loading) return <div className="text-center py-12 text-slate-400">Loading...</div>;
 
     return (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden overflow-x-auto">
             <div className="px-5 py-3 border-b border-gray-200 bg-gray-50">
                 <h3 className="text-sm font-semibold text-slate-700">{users.length} Users</h3>
             </div>

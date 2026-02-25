@@ -194,14 +194,14 @@ const FileViewerPage = () => {
                     <Link to={`${basePath}/files`} className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors mb-4">
                         <ChevronLeft size={16} /> Repository Index
                     </Link>
-                    <div className="flex items-center gap-4">
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">{file.fileName}</h1>
+                    <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{file.fileName}</h1>
                         <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${file.approved ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                             {file.approved ? 'Audit Passed' : 'Pending Review'}
                         </span>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <button onClick={handleDownload} className="flex items-center gap-3 px-6 py-3 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-700 hover:bg-slate-50 transition-all shadow-sm">
                         <Download size={18} /> Save Copy
                     </button>
